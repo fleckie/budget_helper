@@ -1,6 +1,5 @@
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
-import 'package:budget_helper/BLoC/category_screen_bloc.dart';
-import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:flutter/material.dart';
 
 
@@ -22,7 +21,7 @@ class _AddCategoryState extends State<AddCategoryScreen> {
       showCustomSnackBar(context, "Please enter a name for the category");
     } else {
       String type = _expense ? "Expenses" : "Incomes";
-      final categoryBloc = BlocProvider.of<CategoryScreenBloc>(context);
+      final categoryBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
       try {
         await categoryBloc.saveCategory(controller.text, type);
       }catch (e){

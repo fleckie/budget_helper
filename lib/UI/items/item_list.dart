@@ -1,8 +1,8 @@
 //TODO implement item list
 //TODO init with calling item_list_bloc load items
 
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
-import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:budget_helper/BLoC/item_list_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/DataLayer/models/item.dart';
@@ -15,10 +15,10 @@ class ItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemScreenBloc = BlocProvider.of<ItemListBloc>(context);
+    final itemScreenBloc = BlocProvider.of<AppBloc>(context).itemListBloc;
     //TODO Bloc should reference "shared" data via repository module
     //TODO or rather have a BlocConnector connecting streams
-    final categoryScreenBloc = BlocProvider.of<CategoryScreenBloc>(context);
+    final categoryScreenBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     categoryScreenBloc.dateStream.listen((date){
       itemScreenBloc.loadItems(category.id, date);
     });

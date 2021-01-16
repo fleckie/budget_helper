@@ -1,5 +1,6 @@
 import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/UI/items/item_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class _CategoryListState extends State<CategoryList> {
   CategoryScreenBloc bloc;
   @override
   Widget build(BuildContext context) {
-    bloc = BlocProvider.of<CategoryScreenBloc>(context);
+    bloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     bloc.loadCategories();
     return StreamBuilder<Map<String, List<Category>>>(
         stream: bloc.categoryListStream,

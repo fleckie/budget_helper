@@ -1,3 +1,4 @@
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:budget_helper/BLoC/item_date_bloc.dart';
@@ -10,24 +11,21 @@ import 'UI/main_screen.dart';
 void main() => runApp(BudgetApp());
 
 class BudgetApp extends StatelessWidget {
+  AppBloc _bloc;
+
+  BudgetApp() {
+    _bloc = AppBloc();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CategoryScreenBloc>(
-        bloc: CategoryScreenBloc(),
-        child: BlocProvider<ItemListBloc>(
-          bloc: ItemListBloc(),
-          child: BlocProvider<ItemBloc>(
-            bloc: ItemBloc(),
-              child: BlocProvider<ItemDateBloc>(
-                bloc: ItemDateBloc(),
-                child: MaterialApp(
-                  title: 'Budget',
-                  theme: ThemeData.light(),
-                  home: MainScreen(),
-                ),
-              ),
-            ),
-          ),
-        );
+    return BlocProvider(
+      bloc: _bloc,
+      child: MaterialApp(
+        title: 'Budget',
+        theme: ThemeData.light(),
+        home: MainScreen(),
+      ),
+    );
   }
 }

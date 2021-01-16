@@ -1,3 +1,4 @@
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:budget_helper/UI/categories/add_category_screen.dart';
@@ -12,9 +13,7 @@ class CategoryScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-            bottom: TabBar(
-                onTap: (int) => print(int),
-                tabs: [
+            bottom: TabBar(tabs: [
           Tab(icon: Text("Expenses")),
           Tab(icon: Text("Income"))
         ])),
@@ -22,6 +21,7 @@ class CategoryScreen extends StatelessWidget {
           children: <Widget>[
             DatePanel(),
             Expanded(
+              //TODO: set local state variable and pass it instead of hardcoded string
               child: TabBarView(children: [
                 CategoryList("Expenses"),
                 CategoryList("Incomes")
@@ -44,6 +44,6 @@ class CategoryScreen extends StatelessWidget {
     await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AddCategoryScreen();
     }));
-    BlocProvider.of<CategoryScreenBloc>(context).loadCategories();
+    BlocProvider.of<AppBloc>(context).categoryScreenBloc.loadCategories();
   }
 }

@@ -8,7 +8,8 @@ import 'package:path/path.dart';
 import 'database_constants.dart' as Constants;
 import 'database_setup.dart' as Setup;
 
-//TODO hardgecodete ids (spalte in jeweiligen tabellen) auf constanten ändern
+//TODO change hardcoded ids to constants
+//TODO: create DAO classes and move methods for different models there
 
 class DatabaseHelper {
   //*named, private Constructor (indicated by the underscore). No public constructor
@@ -27,7 +28,6 @@ class DatabaseHelper {
   // Opens Database and executes onCreate, if it wast already created
   _initDatabase() async {
     String path = join(await getDatabasesPath(), Constants.databaseName);
-    Sqflite.devSetDebugModeOn(true);
     return await openDatabase(path,
         version: Constants.databaseVersion,
         onCreate: _onCreate,
@@ -125,7 +125,6 @@ class DatabaseHelper {
         GROUP BY ${Constants.itemsCategoryId} 
         HAVING ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth''');
     final Map<int, double> map = Map<int, double>();
-    //TODO move this to bloc?
     result.forEach((e) => {map[e[Constants.itemsCategoryId]] = e['Summe']});
     return map;
   }

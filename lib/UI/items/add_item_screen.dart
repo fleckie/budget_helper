@@ -1,3 +1,4 @@
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/BLoC/item_bloc.dart';
 import 'package:budget_helper/BLoC/item_date_bloc.dart';
@@ -38,7 +39,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 
   commitItem(DateTime date) {
-    final bloc = BlocProvider.of<ItemBloc>(context);
+    final bloc = BlocProvider.of<AppBloc>(context).itemBloc;
     bloc.saveItem(nameController.text, widget.category.id,
         double.parse(valueController.text), date);
     Navigator.of(context).pop();
@@ -71,9 +72,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 
   Future<void> listen() async {
-    itemDateBloc = BlocProvider.of<ItemDateBloc>(context);
+    itemDateBloc = BlocProvider.of<AppBloc>(context).itemDateBloc;
     subscription = itemDateBloc.dateStream.listen((date) {
-      print(date);
       setState(() {
         date == null ? _pickedDate = DateTime.now() : _pickedDate = date;
       });

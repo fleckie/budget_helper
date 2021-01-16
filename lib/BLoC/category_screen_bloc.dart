@@ -18,12 +18,11 @@ class CategoryScreenBloc implements Bloc {
   String _date;
   Map<int, double> _valueBreakdownMap;
 
-  // Category Methods
   void loadCategories() async {
     final expenses =
-        await DatabaseHelper.instance.getCategorySubtypeTable('Expenses');
+    await DatabaseHelper.instance.getCategorySubtypeTable('Expenses');
     final incomes =
-        await DatabaseHelper.instance.getCategorySubtypeTable('Incomes');
+    await DatabaseHelper.instance.getCategorySubtypeTable('Incomes');
     final Map<String, List<Category>> map = Map<String, List<Category>>();
     map['Expenses'] = expenses;
     map['Incomes'] = incomes;
@@ -78,7 +77,6 @@ class CategoryScreenBloc implements Bloc {
   }
 
   //Breaking down item values by category
-
   void loadValueBreakdown () async{
     int startOfMonth = dh.convertStringToDate(_date).millisecondsSinceEpoch;
     int endOfMonth = dh.convertStringToDate(dh.convertToStartOfNextMonth(_date)).millisecondsSinceEpoch;

@@ -1,3 +1,4 @@
+import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:budget_helper/BLoC/item_date_bloc.dart';
@@ -28,7 +29,7 @@ class ItemScreen extends StatelessWidget {
     await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return AddItemScreen(category);
     }));
-    final categoryScreenBloc = BlocProvider.of<CategoryScreenBloc>(context);
+    final categoryScreenBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     categoryScreenBloc.reSinkDate();
   }
 }
