@@ -53,7 +53,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       lastDate: DateTime(2030),
     );
     picked != null
-        ? BlocProvider.of<ItemDateBloc>(context).setDate(picked)
+        ? BlocProvider.of<AppBloc>(context).itemDateBloc.setDate(picked)
         : showCustomSnackBar(context, "No Date picked");
   }
 

@@ -28,6 +28,7 @@ class DatabaseHelper {
   // Opens Database and executes onCreate, if it wast already created
   _initDatabase() async {
     String path = join(await getDatabasesPath(), Constants.databaseName);
+    Sqflite.setDebugModeOn(true);
     return await openDatabase(path,
         version: Constants.databaseVersion,
         onCreate: _onCreate,
@@ -122,8 +123,9 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> result = await db.rawQuery(
         '''SELECT ${Constants.itemsCategoryId}, sum(${Constants.itemsValue})  
         as Summe FROM ${Constants.itemsTable} 
+        WHERE ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth
         GROUP BY ${Constants.itemsCategoryId} 
-        HAVING ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth''');
+        ''');
     final Map<int, double> map = Map<int, double>();
     result.forEach((e) => {map[e[Constants.itemsCategoryId]] = e['Summe']});
     return map;
