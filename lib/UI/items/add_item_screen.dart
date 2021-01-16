@@ -1,15 +1,17 @@
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/BLoC/item_bloc.dart';
-import 'package:budget_helper/BLoC/item_date_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class AddItemScreen extends StatefulWidget {
   final Category category;
+
   AddItemScreen(this.category);
+
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
 }
@@ -17,16 +19,61 @@ class AddItemScreen extends StatefulWidget {
 class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
-  DateTime _pickedDate;
+  DateTime _date;
   StreamSubscription subscription;
-  ItemDateBloc itemDateBloc;
 
-  addItem(BuildContext context, DateTime date) {
+  @override
+  void initState() {
+    nameController.text = widget.category.name;
+    initializeDate();
+    super.initState();
+  }
+
+  //hook up the stream containing the currentMonth and resink the data there
+  void initializeDate() {
+    subscription = BlocProvider.of<AppBloc>(context)
+        .categoryScreenBloc
+        .dateStream
+        .listen(onData);
+    BlocProvider.of<AppBloc>(context).categoryScreenBloc.reSinkDate();
+  }
+
+  //sets the date to the current date, if the user is adding items in the current month.
+  //otherwise the first day of the currently displayed month is set
+  void onData(String date) {
+    setState(() {
+      _date = date == dh.convertDateToString(DateTime.now())
+          ? DateTime.now()
+          : dh.convertStringToDate(date);
+    });
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
+  }
+
+  //date picker
+  Future<void> pickDate() async {
+    DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2010),
+      lastDate: DateTime(2030),
+    );
+    picked != null
+        ? _date = picked
+        : showCustomSnackBar(context, "No Date picked");
+  }
+
+  //checks input before committing an item
+  checkInput(BuildContext context) {
     (nameController.text.isEmpty || valueController.text.isEmpty)
         ? showCustomSnackBar(context, 'No empty fields')
         : double.tryParse(valueController.text) == null
-            ? showCustomSnackBar(context, 'Value is not a number!')
-            : commitItem(date);
+        ? showCustomSnackBar(context, 'Value is not a number!')
+        : saveItem();
   }
 
   showCustomSnackBar(BuildContext context, String message) {
@@ -38,56 +85,11 @@ class _AddItemScreenState extends State<AddItemScreen> {
         )));
   }
 
-  commitItem(DateTime date) {
+  saveItem() {
     final bloc = BlocProvider.of<AppBloc>(context).itemBloc;
     bloc.saveItem(nameController.text, widget.category.id,
-        double.parse(valueController.text), date);
+        double.parse(valueController.text), _date);
     Navigator.of(context).pop();
-  }
-
-  Future<void> pickDate(DateTime initialDate) async {
-    DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2010),
-      lastDate: DateTime(2030),
-    );
-    picked != null
-        ? BlocProvider.of<AppBloc>(context).itemDateBloc.setDate(picked)
-        : showCustomSnackBar(context, "No Date picked");
-  }
-
-  @override
-  void initState() {
-    nameController.text = widget.category.name;
-    super.initState();
-  }
-
-  @override
-  Future<void> didChangeDependencies() async {
-    subscription?.cancel();
-    await listen();
-    initDate();
-    super.didChangeDependencies();
-  }
-
-  Future<void> listen() async {
-    itemDateBloc = BlocProvider.of<AppBloc>(context).itemDateBloc;
-    subscription = itemDateBloc.dateStream.listen((date) {
-      setState(() {
-        date == null ? _pickedDate = DateTime.now() : _pickedDate = date;
-      });
-    });
-  }
-
-  Future<void> initDate() async {
-    await itemDateBloc.initDate();
-  }
-
-  @override
-  void dispose() {
-    subscription?.cancel();
-    super.dispose();
   }
 
   @override
@@ -95,7 +97,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(title: Text('Add a new Item')),
-        body: _pickedDate == null
+        body: _date == null
             ? Center(child: CircularProgressIndicator())
             : Container(
                 child: Padding(
@@ -128,10 +130,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
                               child: Column(
                             children: <Widget>[
                               Text(
-                                  '${_pickedDate.day.toString()} / ${_pickedDate.month.toString()} / ${_pickedDate.year.toString()}'),
+                                  '${_date.day.toString()} / ${_date.month.toString()} / ${_date.year.toString()}'),
                               RaisedButton(
                                   onPressed: () {
-                                    pickDate(_pickedDate);
+                                    pickDate();
                                   },
                                   child: Text('Pick a date'))
                             ],
@@ -140,7 +142,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         padding: const EdgeInsets.all(16.0),
                         child: Builder(builder: (BuildContext context) {
                           return RaisedButton(
-                            onPressed: () => addItem(context, _pickedDate),
+                            onPressed: () => checkInput(context),
                             color: Colors.indigoAccent,
                             child: Text('Add Item'),
                           );

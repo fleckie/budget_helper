@@ -10,7 +10,6 @@ import 'database_setup.dart' as Setup;
 
 //TODO change hardcoded ids to constants
 //TODO: create DAO classes and move methods for different models there
-
 class DatabaseHelper {
   //*named, private Constructor (indicated by the underscore). No public constructor
   DatabaseHelper._privateConstructor();
@@ -28,7 +27,8 @@ class DatabaseHelper {
   // Opens Database and executes onCreate, if it wast already created
   _initDatabase() async {
     String path = join(await getDatabasesPath(), Constants.databaseName);
-    Sqflite.setDebugModeOn(true);
+    //for debugging:
+    Sqflite.setDebugModeOn(false);
     return await openDatabase(path,
         version: Constants.databaseVersion,
         onCreate: _onCreate,
@@ -58,11 +58,7 @@ class DatabaseHelper {
   //method to retrieve the 2 subtypes of categories
   Future<List<Category>> getCategorySubtypeTable(String tableName) async {
     final Database db = await DatabaseHelper.instance.database;
-    //print(await db.query("sqlite_master"));
     final List<Map<String, dynamic>> result = await db.query(tableName);
-    //print(await db.rawQuery('SELECT * from Categories'));
-    //print(await db.rawQuery('SELECT * from Expenses'));
-    //print(await db.rawQuery('SELECT * from Incomes'));
     return List.generate(result.length, (i) {
       return Category(result[i]['id'], result[i]['name'], tableName);
     });
