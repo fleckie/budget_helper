@@ -1,4 +1,4 @@
-import 'package:budget_helper/DataLayer/database/database_helper.dart';
+import 'package:budget_helper/DataLayer/DAO/item_DAO.dart';
 import 'package:budget_helper/DataLayer/models/item.dart';
 import 'bloc.dart';
 import 'dart:async';
@@ -10,13 +10,12 @@ class ItemListBloc implements Bloc {
   final _controller = StreamController<List<Item>>.broadcast();
   ItemListBloc();
   Stream<List<Item>> get itemStream => _controller.stream;
+  ItemDAO itemDAO = ItemDAO.instance;
 
   void loadItems(int id, String date) async {
-
     final int startOfMonth = dh.convertStringToDate(date).millisecondsSinceEpoch;
     final int endOfMonth = dh.convertStringToDate(dh.convertToStartOfNextMonth(date)).millisecondsSinceEpoch;
-
-    final itemList = await DatabaseHelper.instance.getItemsInCategory(id, startOfMonth, endOfMonth);
+    final itemList = await itemDAO.loadItems(id, startOfMonth, endOfMonth);
     _controller.sink.add(itemList);
   }
 

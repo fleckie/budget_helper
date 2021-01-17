@@ -16,8 +16,6 @@ class ItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final itemScreenBloc = BlocProvider.of<AppBloc>(context).itemListBloc;
-    //TODO Bloc should reference "shared" data via repository module
-    //TODO or rather have a BlocConnector connecting streams
     final categoryScreenBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     categoryScreenBloc.dateStream.listen((date){
       itemScreenBloc.loadItems(category.id, date);

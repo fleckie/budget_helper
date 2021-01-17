@@ -1,49 +1,52 @@
-import 'package:budget_helper/DataLayer/database/database_helper.dart';
+import 'package:budget_helper/DataLayer/DAO/category_DAO.dart';
 import 'bloc.dart';
 import 'dart:async';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class CategoryScreenBloc implements Bloc {
-  final _categoryListController = StreamController<Map<String, List<Category>>>.broadcast();
+  final CategoryDAO categoryDAO = CategoryDAO.instance;
+  Map<int, double> _valueBreakdownMap;
+  String _date;
+
+  final _categoryListController =
+      StreamController<Map<String, List<Category>>>.broadcast();
   final _dateController = StreamController<String>.broadcast();
-  final _valueBreakdownByCategory = StreamController<Map<int, double>>.broadcast();
+  final _valueBreakdownByCategory =
+      StreamController<Map<int, double>>.broadcast();
 
   Stream<Map<String, List<Category>>> get categoryListStream =>
       _categoryListController.stream;
+
   Stream<String> get dateStream => _dateController.stream;
+
   Stream<Map<int, double>> get valueBreakdown =>
       _valueBreakdownByCategory.stream;
 
-  String _date;
-  Map<int, double> _valueBreakdownMap;
-
   void loadCategories() async {
-    final expenses =
-    await DatabaseHelper.instance.getCategorySubtypeTable('Expenses');
-    final incomes =
-    await DatabaseHelper.instance.getCategorySubtypeTable('Incomes');
-    final Map<String, List<Category>> map = Map<String, List<Category>>();
-    map['Expenses'] = expenses;
-    map['Incomes'] = incomes;
-    _categoryListController.sink.add(map);
+    final categoryMap = await categoryDAO.loadCategories();
+    _categoryListController.sink.add(categoryMap);
     initDate();
   }
 
+  void saveCategory(String name, String type) async {
+    await categoryDAO.saveCategory(name, type);
+  }
+
   void deleteCategory(int id) async {
-    await DatabaseHelper.instance.delete("Categories", id);
+    await categoryDAO.deleteCategory(id);
     loadCategories();
   }
 
-  Future<int> saveCategory(String name, String type) async {
-    // generate a new category and get its id
-    int id = await DatabaseHelper.instance.insert("Categories", {'id': null});
-    // choose table to insert data into
-    Map<String, dynamic> data = Map<String, dynamic>();
-    data['id'] = id;
-    data['name'] = name;
-    await DatabaseHelper.instance.insert(type, data);
-    return id;
+  //Breaking down item values by category
+  void loadValueBreakdown() async {
+    int startOfMonth = dh.convertStringToDate(_date).millisecondsSinceEpoch;
+    int endOfMonth = dh
+        .convertStringToDate(dh.convertToStartOfNextMonth(_date))
+        .millisecondsSinceEpoch;
+    _valueBreakdownMap =
+        await categoryDAO.loadValueBreakdown(startOfMonth, endOfMonth);
+    _valueBreakdownByCategory.sink.add(_valueBreakdownMap);
   }
 
 //Date methods
@@ -54,7 +57,7 @@ class CategoryScreenBloc implements Bloc {
   }
 
   //resinking the last set date to trigger an event at potential listeners
-  void reSinkDate(){
+  void reSinkDate() {
     _dateController.sink.add(_date);
   }
 
@@ -76,22 +79,10 @@ class CategoryScreenBloc implements Bloc {
     loadValueBreakdown();
   }
 
-  //Breaking down item values by category
-  void loadValueBreakdown () async{
-    int startOfMonth = dh.convertStringToDate(_date).millisecondsSinceEpoch;
-    int endOfMonth = dh.convertStringToDate(dh.convertToStartOfNextMonth(_date)).millisecondsSinceEpoch;
-    _valueBreakdownMap = await DatabaseHelper.instance.getAggregatedValueByCategory(startOfMonth, endOfMonth);
-    _valueBreakdownByCategory.sink.add(_valueBreakdownMap);
-  }
-
-
   @override
   void dispose() {
     _categoryListController.close();
     _dateController.close();
     _valueBreakdownByCategory.close();
   }
-
-
-
 }
