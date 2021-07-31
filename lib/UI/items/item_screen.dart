@@ -11,7 +11,14 @@ class ItemScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(category.name)),
+      appBar: AppBar(title: Text(category.name),
+      actions: <Widget>[
+        IconButton (
+          onPressed: (){},
+          icon: Icon(Icons.settings),
+          tooltip: "Edit Category",
+        )
+      ],),
       body: ItemList(category),
       floatingActionButton: FloatingActionButton(
           onPressed: () {

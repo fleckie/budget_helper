@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 class CategoryList extends StatefulWidget {
   final String type;
+
   CategoryList(this.type);
 
   @override
@@ -15,6 +16,7 @@ class CategoryList extends StatefulWidget {
 
 class _CategoryListState extends State<CategoryList> {
   CategoryScreenBloc bloc;
+
   @override
   Widget build(BuildContext context) {
     bloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
@@ -66,15 +68,19 @@ class _CategoryListState extends State<CategoryList> {
             child: new Container(
                 margin: EdgeInsets.all(8.0),
                 padding: EdgeInsets.all(6.0),
-                child: new Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    CircleAvatar(
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
-                        child: new Text(category.name[0].toUpperCase())),
-                    Padding(padding: EdgeInsets.only(left: 16.0)),
-                    Text(category.name, style: TextStyle(fontSize: 20.0)),
+                    Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            child: new Text(category.name[0].toUpperCase())),
+                        Padding(padding: EdgeInsets.only(left: 16.0)),
+                        Text(category.name, style: TextStyle(fontSize: 20.0)),
+                      ],
+                    ),
                     Text(value == null ? "0" : value.toString())
                   ],
                 ))));

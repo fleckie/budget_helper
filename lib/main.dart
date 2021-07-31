@@ -10,7 +10,7 @@ class BudgetApp extends StatelessWidget {
   AppBloc _bloc;
 
   BudgetApp() {
-    _bloc = AppBloc();
+    final _bloc = AppBloc();
   }
 
   @override

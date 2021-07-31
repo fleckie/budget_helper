@@ -17,9 +17,9 @@ class CategoryScreen extends StatelessWidget {
         appBar: AppBar(
             title: NetTotal(),
             bottom: TabBar(tabs: [
-          Tab(icon: Text("Expenses")),
-          Tab(icon: Text("Income"))
-        ])),
+              Tab(icon: Text("Expenses")),
+              Tab(icon: Text("Income"))
+            ])),
         body: Column(
           children: <Widget>[
             DatePanel(),
