@@ -35,12 +35,50 @@ class CategoryDAO {
     await databaseHelper.delete(Constants.categoriesTable, id);
   }
 
+  //TODO: move to a new DAO
+  Future<double> loadNetTotal(int endOfMonth) async {
+    double expenses = 0;
+    double income = 0;
+    List<Map<String, dynamic>> resultMap =
+        await databaseHelper.getNetTotalAtSpecificDate(endOfMonth);
+    print(resultMap);
+    if (resultMap.isEmpty) {
+      return 0;
+    }
+    resultMap.forEach((e) => {
+          if (e['type'] == 'Expenses')
+            {expenses = e['sum']}
+          else if (e['type'] == 'Incomes')
+            {income = e['sum']}
+        });
+    return income - expenses;
+  }
+
+  //TODO: simplify/combine the two similar functions
+  Future<double> loadNetTotalOfSpecificMonth(
+      int startOfMonth, int endOfMonth) async {
+    double expenses = 0;
+    double income = 0;
+    List<Map<String, dynamic>> resultMap = await databaseHelper
+        .getNetTotalForSpecificMonth(startOfMonth, endOfMonth);
+    if (resultMap.isEmpty) {
+      return 0;
+    }
+    resultMap.forEach((e) => {
+          if (e['type'] == 'Expenses')
+            {expenses = e['sum']}
+          else if (e['type'] == 'Incomes')
+            {income = e['sum']}
+        });
+    return income - expenses;
+  }
+
   Future<Map<int, double>> loadValueBreakdown(
       int startOfMonth, int endOfMonth) async {
     final List<Map<String, dynamic>> resultMap = await databaseHelper
         .getAggregatedValueByCategory(startOfMonth, endOfMonth);
     final Map<int, double> map = Map<int, double>();
-    resultMap.forEach((e) => {map[e[Constants.itemsCategoryId]] = e['Summe']});
+    resultMap.forEach((e) => {map[e[Constants.itemsCategoryId]] = e['sum']});
     return map;
   }
 }

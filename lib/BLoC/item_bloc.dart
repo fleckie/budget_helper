@@ -8,8 +8,8 @@ class ItemBloc implements Bloc {
   Stream<Item> get itemStream => _controller.stream;
   final ItemDAO itemDAO = ItemDAO.instance;
 
-  void saveItem(String name, int categoryId, double value, DateTime date) async {
-    await itemDAO.saveItem(name, categoryId, value, date);
+  void saveItem(String name, int categoryId, String type, double value, DateTime date) async {
+    await itemDAO.saveItem(name, categoryId, type, value, date);
   }
 
 

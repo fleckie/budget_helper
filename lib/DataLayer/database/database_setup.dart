@@ -25,6 +25,7 @@ var commands = [
       ${Constants.itemsId} INTEGER PRIMARY KEY,
       ${Constants.itemsName} TEXT,
       ${Constants.itemsCategoryId} INTEGER,
+       ${Constants.itemsType} TEXT,
       ${Constants.itemsValue} REAL,
       ${Constants.itemsDate} INTEGER,
       CONSTRAINT fk_Items_Categories FOREIGN KEY (${Constants.itemsCategoryId}) REFERENCES ${Constants.categoriesTable} (${Constants.categoriesId}) ON DELETE CASCADE

@@ -32,6 +32,7 @@ class _CategoryListState extends State<CategoryList> {
   }
 
   Widget _buildCategories(List<Category> categories) {
+    bloc.loadValueBreakdown();
     return StreamBuilder<Map<int, double>>(
       stream: bloc.valueBreakdown,
       builder: (context, snapshot) {
@@ -83,6 +84,6 @@ class _CategoryListState extends State<CategoryList> {
     await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return ItemScreen(category);
     }));
-    bloc.loadValueBreakdown();
+    bloc.updateScreen();
   }
 }

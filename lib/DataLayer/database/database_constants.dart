@@ -1,6 +1,6 @@
 library database_constants;
 
-  const databaseName = "test";
+  const databaseName = "dev";
   const databaseVersion = 1;
 
   const categoriesTable = 'Categories';
@@ -20,6 +20,7 @@ library database_constants;
   const itemsName = 'name';
   const itemsValue = 'value';
   const itemsDate = 'date';
+  const itemsType = 'type';
 
 
 

@@ -3,13 +3,13 @@
 
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
-import 'package:budget_helper/BLoC/item_list_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/DataLayer/models/item.dart';
 import 'package:flutter/material.dart';
 
 class ItemList extends StatelessWidget {
   //TODO category in bloc integrieren
+  //TODO: Fixes Design für Itemeinträge
   final Category category;
   ItemList(this.category);
 

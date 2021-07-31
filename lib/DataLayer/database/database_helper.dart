@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'package:budget_helper/DataLayer/database/database_setup.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
-import 'package:budget_helper/DataLayer/models/item.dart';
-import 'package:flutter/material.dart';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'database_constants.dart' as Constants;
@@ -27,7 +25,7 @@ class DatabaseHelper {
   _initDatabase() async {
     String path = join(await getDatabasesPath(), Constants.databaseName);
     //for debugging:
-    Sqflite.setDebugModeOn(false);
+    Sqflite.setDebugModeOn(true);
     return await openDatabase(path,
         version: Constants.databaseVersion,
         onCreate: _onCreate,
@@ -78,12 +76,32 @@ class DatabaseHelper {
        ''');
   }
 
+  Future<List<Map<String,dynamic>>> getNetTotalAtSpecificDate(int endOfMonth) async {
+    final Database db = await DatabaseHelper.instance.database;
+    return await db.rawQuery(
+      '''SELECT ${Constants.itemsType}, sum(${Constants.itemsValue})
+      as sum FROM ${Constants.itemsTable}
+      WHERE ${Constants.itemsDate} < $endOfMonth
+      GROUP BY ${Constants.itemsType}
+      ''');
+  }
+
+  Future<List<Map<String,dynamic>>> getNetTotalForSpecificMonth(int startOfMonth, int endOfMonth) async {
+    final Database db = await DatabaseHelper.instance.database;
+    return await db.rawQuery(
+        '''SELECT ${Constants.itemsType}, sum(${Constants.itemsValue})
+      as sum FROM ${Constants.itemsTable}
+      WHERE ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth
+      GROUP BY ${Constants.itemsType}
+      ''');
+  }
+
   Future<List<Map<String, dynamic>>> getAggregatedValueByCategory(
       int startOfMonth, int endOfMonth) async {
     final Database db = await DatabaseHelper.instance.database;
     return await db.rawQuery(
         '''SELECT ${Constants.itemsCategoryId}, sum(${Constants.itemsValue})  
-        as Summe FROM ${Constants.itemsTable} 
+        as sum FROM ${Constants.itemsTable} 
         WHERE ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth
         GROUP BY ${Constants.itemsCategoryId} 
         ''');

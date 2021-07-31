@@ -14,7 +14,8 @@ class ItemListBloc implements Bloc {
 
   void loadItems(int id, String date) async {
     final int startOfMonth = dh.convertStringToDate(date).millisecondsSinceEpoch;
-    final int endOfMonth = dh.convertStringToDate(dh.convertToStartOfNextMonth(date)).millisecondsSinceEpoch;
+    //subtract 1 from start of next month to only get current month
+    final int endOfMonth = dh.convertStringToDate(dh.convertToStartOfNextMonth(date)).millisecondsSinceEpoch-1;
     final itemList = await itemDAO.loadItems(id, startOfMonth, endOfMonth);
     _controller.sink.add(itemList);
   }

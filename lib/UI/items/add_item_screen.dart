@@ -1,6 +1,5 @@
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
-import 'package:budget_helper/BLoC/item_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -72,8 +71,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
     (nameController.text.isEmpty || valueController.text.isEmpty)
         ? showCustomSnackBar(context, 'No empty fields')
         : double.tryParse(valueController.text) == null
-        ? showCustomSnackBar(context, 'Value is not a number!')
-        : saveItem();
+            ? showCustomSnackBar(context, 'Value is not a number!')
+            : saveItem();
   }
 
   showCustomSnackBar(BuildContext context, String message) {
@@ -87,7 +86,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   saveItem() {
     final bloc = BlocProvider.of<AppBloc>(context).itemBloc;
-    bloc.saveItem(nameController.text, widget.category.id,
+    bloc.saveItem(nameController.text, widget.category.id, widget.category.type,
         double.parse(valueController.text), _date);
     Navigator.of(context).pop();
   }

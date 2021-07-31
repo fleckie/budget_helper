@@ -6,14 +6,17 @@ import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class CategoryScreenBloc implements Bloc {
   final CategoryDAO categoryDAO = CategoryDAO.instance;
+  Map<String, List> _categoryMap;
   Map<int, double> _valueBreakdownMap;
   String _date;
+  Map<String,double> _netTotal;
 
   final _categoryListController =
       StreamController<Map<String, List<Category>>>.broadcast();
-  final _dateController = StreamController<String>.broadcast();
   final _valueBreakdownByCategory =
       StreamController<Map<int, double>>.broadcast();
+  final _dateController = StreamController<String>.broadcast();
+  final _netTotalController = StreamController<Map<String,double>>.broadcast();
 
   Stream<Map<String, List<Category>>> get categoryListStream =>
       _categoryListController.stream;
@@ -23,10 +26,11 @@ class CategoryScreenBloc implements Bloc {
   Stream<Map<int, double>> get valueBreakdown =>
       _valueBreakdownByCategory.stream;
 
-  void loadCategories() async {
-    final categoryMap = await categoryDAO.loadCategories();
-    _categoryListController.sink.add(categoryMap);
-    initDate();
+  Stream<Map<String,double>> get netTotalStream => _netTotalController.stream;
+
+  Future<void> loadCategories() async {
+    _categoryMap =  await categoryDAO.loadCategories();
+    _categoryListController.sink.add(_categoryMap);
   }
 
   void saveCategory(String name, String type) async {
@@ -38,12 +42,47 @@ class CategoryScreenBloc implements Bloc {
     loadCategories();
   }
 
-  //Breaking down item values by category
-  void loadValueBreakdown() async {
+  void updateScreen() async {
+    await loadCategories();
+    await loadValueBreakdown();
+    await loadNetTotal();
+  }
+
+  Future<void> loadNetTotal() async{
+    double netTotalOverall = await loadNetTotalAtSpecificDate();
+    double netTotalSpecificMonth = await loadNetTotalOfSpecificMonth();
+    _netTotal = Map<String,double>();
+    _netTotal['overall'] = netTotalOverall;
+    _netTotal['month'] = netTotalSpecificMonth;
+    _netTotalController.sink.add(_netTotal);
+  }
+
+  Future<double> loadNetTotalAtSpecificDate() async {
+    int endOfMonth = dh
+            .convertStringToDate(dh.convertToStartOfNextMonth(_date))
+            .millisecondsSinceEpoch -
+        1;
+    return await categoryDAO.loadNetTotal(endOfMonth);
+  }
+
+  //TODO: loadnetTotalMonth
+  Future<double> loadNetTotalOfSpecificMonth() async {
     int startOfMonth = dh.convertStringToDate(_date).millisecondsSinceEpoch;
     int endOfMonth = dh
         .convertStringToDate(dh.convertToStartOfNextMonth(_date))
-        .millisecondsSinceEpoch;
+        .millisecondsSinceEpoch -
+        1;
+    return await categoryDAO.loadNetTotalOfSpecificMonth(startOfMonth, endOfMonth);
+
+  }
+
+  //Breaking down item values by category
+  Future<void> loadValueBreakdown() async {
+    int startOfMonth = dh.convertStringToDate(_date).millisecondsSinceEpoch;
+    int endOfMonth = dh
+            .convertStringToDate(dh.convertToStartOfNextMonth(_date))
+            .millisecondsSinceEpoch -
+        1;
     _valueBreakdownMap =
         await categoryDAO.loadValueBreakdown(startOfMonth, endOfMonth);
     _valueBreakdownByCategory.sink.add(_valueBreakdownMap);
@@ -53,7 +92,6 @@ class CategoryScreenBloc implements Bloc {
   void initDate() {
     _date = dh.convertDateToString(DateTime.now());
     _dateController.sink.add(_date);
-    loadValueBreakdown();
   }
 
   //resinking the last set date to trigger an event at potential listeners
@@ -61,22 +99,22 @@ class CategoryScreenBloc implements Bloc {
     _dateController.sink.add(_date);
   }
 
-  void setDate(DateTime date) {
-    _date = dh.convertDateToString(date);
-    _dateController.sink.add(_date);
-    loadValueBreakdown();
-  }
+  // void setDate(DateTime date) {
+  //   _date = dh.convertDateToString(date);
+  //   _dateController.sink.add(_date);
+  //   updateScreen();
+  // }
 
   void previousMonth() {
     _date = dh.convertToStartOfLastMonth(_date);
     _dateController.sink.add(_date);
-    loadValueBreakdown();
+    updateScreen();
   }
 
   void nextMonth() {
     _date = dh.convertToStartOfNextMonth(_date);
     _dateController.sink.add(_date);
-    loadValueBreakdown();
+    updateScreen();
   }
 
   @override
@@ -84,5 +122,6 @@ class CategoryScreenBloc implements Bloc {
     _categoryListController.close();
     _dateController.close();
     _valueBreakdownByCategory.close();
+    _netTotalController.close();
   }
 }
