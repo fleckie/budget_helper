@@ -58,7 +58,7 @@ class DatabaseHelper {
     final Database db = await DatabaseHelper.instance.database;
     final List<Map<String, dynamic>> result = await db.query(tableName);
     return List.generate(result.length, (i) {
-      return Category(result[i]['id'], result[i]['name'], tableName);
+      return Category(result[i]['id'], result[i]['name'], tableName, result[i]['color']);
     });
   }
 

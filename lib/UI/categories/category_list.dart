@@ -74,7 +74,7 @@ class _CategoryListState extends State<CategoryList> {
                     Row(
                       children: <Widget>[
                         CircleAvatar(
-                            backgroundColor: Colors.deepPurple,
+                            backgroundColor: Color(category.color),
                             foregroundColor: Colors.white,
                             child: new Text(category.name[0].toUpperCase())),
                         Padding(padding: EdgeInsets.only(left: 16.0)),

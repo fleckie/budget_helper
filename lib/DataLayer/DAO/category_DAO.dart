@@ -21,13 +21,22 @@ class CategoryDAO {
     return map;
   }
 
-  Future<void> saveCategory(String name, String type) async {
+  Future<void> saveCategory(String name, String type, int color) async {
     // generate a new category and get its id
     int id = await databaseHelper.insert("Categories", {'id': null});
     // choose table to insert data into
     Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
     data['name'] = name;
+    data['color'] = color;
+    await databaseHelper.insert(type, data);
+  }
+
+  Future<void> updateCategory(int id, String name, String type, int color) async {
+    Map<String, dynamic> data = Map<String, dynamic>();
+    data['id'] = id;
+    data['name'] = name;
+    data['color'] = color;
     await databaseHelper.insert(type, data);
   }
 

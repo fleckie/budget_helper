@@ -1,3 +1,4 @@
+
 import 'package:budget_helper/DataLayer/DAO/category_DAO.dart';
 import 'bloc.dart';
 import 'dart:async';
@@ -33,8 +34,12 @@ class CategoryScreenBloc implements Bloc {
     _categoryListController.sink.add(_categoryMap);
   }
 
-  void saveCategory(String name, String type) async {
-    await categoryDAO.saveCategory(name, type);
+  Future<void> saveCategory(String name, String type, int color) async {
+    await categoryDAO.saveCategory(name, type, color);
+  }
+  
+  Future<void> updateCategory(int id, String name, String type, int color) async {
+    await categoryDAO.updateCategory(id, name, type, color);
   }
 
   void deleteCategory(int id) async {

@@ -10,6 +10,7 @@ var commands = [
     CREATE TABLE ${Constants.expensesTable}(
       ${Constants.expensesId} INTEGER PRIMARY KEY,
       ${Constants.expensesName} TEXT NOT NULL,
+      ${Constants.expensesColor} INTEGER NOT NULL,
       CONSTRAINT fk_Expenses_Categories FOREIGN KEY (${Constants.expensesId}) REFERENCES ${Constants.categoriesTable} (${Constants.categoriesId}) ON DELETE CASCADE
        );
        ''',
@@ -17,6 +18,7 @@ var commands = [
     CREATE TABLE ${Constants.incomesTable}(
       ${Constants.incomesId} INTEGER PRIMARY KEY,
       ${Constants.incomesName} TEXT NOT NULL,
+      ${Constants.incomesColor} INTEGER NOT NULL,
       CONSTRAINT fk_Expenses_Categories FOREIGN KEY (${Constants.incomesId}) REFERENCES ${Constants.categoriesTable} (${Constants.categoriesId}) ON DELETE CASCADE
     );
       ''',

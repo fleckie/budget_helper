@@ -8,7 +8,6 @@ import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class AddItemScreen extends StatefulWidget {
   final Category category;
-
   AddItemScreen(this.category);
 
   @override

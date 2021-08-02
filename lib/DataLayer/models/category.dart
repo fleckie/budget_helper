@@ -4,12 +4,13 @@ class Category {
   final int id;
   final String name;
   String type;
-  Category(@required this.id, @required this.name, this.type);
+  int color;
+  Category(@required this.id, @required this.name, this.type, this.color);
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'name': name,
+  //   };
+  // }
 }
