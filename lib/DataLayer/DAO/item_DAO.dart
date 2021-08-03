@@ -27,13 +27,17 @@ class ItemDAO {
   }
 
   Future<void> saveItem(String name, int categoryId, String type, double value,
-      DateTime date) async {
+      DateTime date, [int id]) async {
     Map<String, dynamic> itemMap = Map<String, dynamic>();
     itemMap[Constants.itemsName] = name;
     itemMap[Constants.itemsCategoryId] = categoryId;
     itemMap[Constants.itemsType] = type;
     itemMap[Constants.itemsValue] = value;
     itemMap[Constants.itemsDate] = date.millisecondsSinceEpoch;
+    if (id != null){
+      itemMap[Constants.itemsId] = id;
+    }
     await databaseHelper.insert(Constants.itemsTable, itemMap);
   }
+
 }

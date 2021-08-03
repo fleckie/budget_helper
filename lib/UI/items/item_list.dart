@@ -6,6 +6,7 @@ import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/DataLayer/models/item.dart';
 import 'package:flutter/material.dart';
+import 'add_item_screen.dart';
 
 class ItemList extends StatelessWidget {
   //TODO category in bloc integrieren
@@ -44,7 +45,7 @@ class ItemList extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = items[index];
               return InkWell(
-                  onTap: () {},
+                  onTap: () {showItemDetails(context, item);},
                   onDoubleTap: () {},
                   child: _buildCustomTile(item));
             });
@@ -76,9 +77,10 @@ class ItemList extends StatelessWidget {
             )));
   }
 
-  showItemDetails(BuildContext context) {
+  showItemDetails(BuildContext context, Item item) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Container();
+      return AddItemScreen(category, item);
     }));
+    BlocProvider.of<AppBloc>(context).categoryScreenBloc.reSinkDate();
   }
 }

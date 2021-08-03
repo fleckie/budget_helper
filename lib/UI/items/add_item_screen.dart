@@ -1,6 +1,7 @@
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
+import 'package:budget_helper/DataLayer/models/item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -8,7 +9,9 @@ import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class AddItemScreen extends StatefulWidget {
   final Category category;
-  AddItemScreen(this.category);
+  final Item item;
+
+  AddItemScreen(this.category, [this.item]);
 
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
@@ -22,9 +25,15 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   @override
   void initState() {
-    nameController.text = widget.category.name;
-    initializeDate();
     super.initState();
+    if (widget.item == null) {
+      initializeDate();
+      nameController.text = widget.category.name;
+    } else {
+      _date = widget.item.date;
+      nameController.text = widget.item.name;
+      valueController.text = widget.item.value.toString();
+    }
   }
 
   //hook up the stream containing the currentMonth and resink the data there
@@ -61,7 +70,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       lastDate: DateTime(2030),
     );
     picked != null
-        ? _date = picked
+        ? setState(() => _date = picked)
         : showCustomSnackBar(context, "No Date picked");
   }
 
@@ -85,8 +94,19 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   saveItem() {
     final bloc = BlocProvider.of<AppBloc>(context).itemBloc;
-    bloc.saveItem(nameController.text, widget.category.id, widget.category.type,
-        double.parse(valueController.text), _date);
+    if (widget.item == null) {
+      bloc.saveItem(nameController.text, widget.category.id,
+          widget.category.type, double.parse(valueController.text), _date);
+    } else {
+      bloc.saveItem(
+          nameController.text,
+          widget.category.id,
+          widget.category.type,
+          double.parse(valueController.text),
+          _date,
+          widget.item.id);
+    }
+
     Navigator.of(context).pop();
   }
 
@@ -116,7 +136,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: TextField(
                           controller: valueController,
-                          keyboardType: TextInputType.number,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
                           decoration: new InputDecoration(
                             labelText: 'Value',
                           ),
