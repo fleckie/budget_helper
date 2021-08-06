@@ -50,7 +50,6 @@ class CategoryDAO {
     double income = 0;
     List<Map<String, dynamic>> resultMap =
         await databaseHelper.getNetTotalAtSpecificDate(endOfMonth);
-    print(resultMap);
     if (resultMap.isEmpty) {
       return 0;
     }

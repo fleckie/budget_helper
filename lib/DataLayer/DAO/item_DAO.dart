@@ -17,12 +17,12 @@ class ItemDAO {
         .getItemsInMonthByCategory(id, startOfMonth, endOfMonth);
     return List.generate(result.length, (i) {
       return Item(
-          id: result[i]['id'],
-          name: result[i]['name'],
-          categoryId: result[i]['categoryId'],
-          type: result[i]['type'],
-          value: result[i]['value'],
-          date: DateTime.fromMillisecondsSinceEpoch(result[i]['date']));
+          id: result[i][Constants.itemsId],
+          name: result[i][Constants.itemsName],
+          categoryId: result[i][Constants.itemsCategoryId],
+          type: result[i][Constants.itemsType],
+          value: result[i][Constants.itemsValue],
+          date: DateTime.fromMillisecondsSinceEpoch(result[i][Constants.itemsDate]));
     });
   }
 
@@ -38,6 +38,10 @@ class ItemDAO {
       itemMap[Constants.itemsId] = id;
     }
     await databaseHelper.insert(Constants.itemsTable, itemMap);
+  }
+
+  Future<void> deleteItem(int id) async {
+    await databaseHelper.delete(Constants.itemsTable, id);
   }
 
 }

@@ -1,5 +1,6 @@
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
+import 'package:budget_helper/BLoC/category_screen_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_helper/UI/helpers/custom_snack_bar.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -15,6 +16,7 @@ class AddCategoryScreen extends StatefulWidget {
 }
 
 class _AddCategoryState extends State<AddCategoryScreen> {
+  CategoryScreenBloc _categoryScreenBloc;
   final TextEditingController controller = TextEditingController();
   String _headline;
   String _buttonText;
@@ -25,6 +27,7 @@ class _AddCategoryState extends State<AddCategoryScreen> {
   @override
   void initState() {
     super.initState();
+    _categoryScreenBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     if (widget.category == null) {
       setState(() {
         _headline = 'Add a New Category';
@@ -49,13 +52,12 @@ class _AddCategoryState extends State<AddCategoryScreen> {
     if (controller.text.isEmpty) {
       showCustomSnackBar(context, "Please enter a name for the category");
     } else {
-      final categoryBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
       try {
         if (widget.category == null) {
-          await categoryBloc.saveCategory(
+          await _categoryScreenBloc.saveCategory(
               controller.text, _type, _currentColor.value);
         } else {
-          await categoryBloc.updateCategory(
+          await _categoryScreenBloc.updateCategory(
               widget.category.id, controller.text, _type, _currentColor.value);
         }
       } catch (e) {
@@ -70,10 +72,15 @@ class _AddCategoryState extends State<AddCategoryScreen> {
     setState(() => _expense = value);
     String type = _expense == true ? 'Expenses' : 'Incomes';
     setState(() => _type = type);
-    print(_currentColor.value);
   }
 
   void changeColor(Color color) => setState(() => _currentColor = color);
+
+  void deleteCategory(int id) {
+    _categoryScreenBloc.deleteCategory(id);
+    int count = 0;
+    Navigator.of(context).popUntil((_) => count++ >= 2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +158,14 @@ class _AddCategoryState extends State<AddCategoryScreen> {
                           color: Colors.indigoAccent,
                           child: Text(_buttonText),
                         );
+                      })),
+                  Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Builder(builder: (BuildContext context) {
+                        return RaisedButton(
+                            onPressed: () => deleteCategory(widget.category.id),
+                            color: Colors.redAccent,
+                            child: Text("Delete Category"));
                       }))
                 ]))));
   }

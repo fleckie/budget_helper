@@ -25,7 +25,7 @@ class DatabaseHelper {
   _initDatabase() async {
     String path = join(await getDatabasesPath(), Constants.databaseName);
     //for debugging:
-    Sqflite.setDebugModeOn(true);
+    Sqflite.setDebugModeOn(false);
     return await openDatabase(path,
         version: Constants.databaseVersion,
         onCreate: _onCreate,
@@ -56,7 +56,7 @@ class DatabaseHelper {
   //TODO: move List generation to DAO
   Future<List<Category>> getCategorySubtypeTable(String tableName) async {
     final Database db = await DatabaseHelper.instance.database;
-    final List<Map<String, dynamic>> result = await db.query(tableName);
+    final List<Map<String, dynamic>> result = await db.query(tableName, orderBy: Constants.expensesName);
     return List.generate(result.length, (i) {
       return Category(result[i]['id'], result[i]['name'], tableName, result[i]['color']);
     });
@@ -73,6 +73,7 @@ class DatabaseHelper {
       SELECT * from ${Constants.itemsTable}
       WHERE ${Constants.itemsCategoryId} == $categoryId 
       AND ${Constants.itemsDate} BETWEEN $startOfMonth AND $endOfMonth
+      ORDER BY ${Constants.itemsDate}
        ''');
   }
 

@@ -16,16 +16,16 @@ class ItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemScreenBloc = BlocProvider.of<AppBloc>(context).itemListBloc;
+    final itemListBloc = BlocProvider.of<AppBloc>(context).itemListBloc;
     final categoryScreenBloc = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     categoryScreenBloc.dateStream.listen((date){
-      itemScreenBloc.loadItems(category.id, date);
+      itemListBloc.loadItems(category.id, date);
     });
     categoryScreenBloc.reSinkDate();
 
 
     return StreamBuilder<List<Item>>(
-      stream: itemScreenBloc.itemStream,
+      stream: itemListBloc.itemStream,
       builder: (context, snapshot) {
         final results = snapshot.data;
         return results == null

@@ -1,48 +1,65 @@
 import 'package:budget_helper/BLoC/app_bloc.dart';
 import 'package:budget_helper/BLoC/bloc_provider.dart';
+import 'package:budget_helper/BLoC/category_screen_bloc.dart';
+import 'package:budget_helper/BLoC/item_bloc.dart';
 import 'package:budget_helper/DataLayer/models/category.dart';
 import 'package:budget_helper/DataLayer/models/item.dart';
+import 'package:budget_helper/UI/items/category_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:budget_helper/DataLayer/date_helper.dart' as dh;
 
 class AddItemScreen extends StatefulWidget {
-  final Category category;
+  final Category presetCategory;
   final Item item;
 
-  AddItemScreen(this.category, [this.item]);
+  AddItemScreen(this.presetCategory, [this.item]);
 
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
 }
 
 class _AddItemScreenState extends State<AddItemScreen> {
+  CategoryScreenBloc _categoryScreenBlock;
+  ItemBloc _itemBloc;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController valueController = TextEditingController();
   DateTime _date;
+  String _headline;
+  String _buttonText;
   StreamSubscription subscription;
+  Category _currentCategory;
 
   @override
   void initState() {
     super.initState();
+    _itemBloc = BlocProvider.of<AppBloc>(context).itemBloc;
+    _categoryScreenBlock = BlocProvider.of<AppBloc>(context).categoryScreenBloc;
     if (widget.item == null) {
       initializeDate();
-      nameController.text = widget.category.name;
+      setState(() {
+        _currentCategory = widget.presetCategory;
+        nameController.text = widget.presetCategory.name;
+        _headline = 'Add an Item';
+        _buttonText = 'Add Item';
+      });
     } else {
-      _date = widget.item.date;
-      nameController.text = widget.item.name;
-      valueController.text = widget.item.value.toString();
+      setState(() {
+        _currentCategory = widget.presetCategory;
+        _date = widget.item.date;
+        nameController.text = widget.item.name;
+        valueController.text = widget.item.value.toString();
+        _headline = 'Edit Item';
+        _buttonText = 'Update Item';
+      });
     }
   }
 
   //hook up the stream containing the currentMonth and resink the data there
   void initializeDate() {
-    subscription = BlocProvider.of<AppBloc>(context)
-        .categoryScreenBloc
-        .dateStream
-        .listen(onData);
-    BlocProvider.of<AppBloc>(context).categoryScreenBloc.reSinkDate();
+    subscription = _categoryScreenBlock.dateStream.listen(onData);
+    _categoryScreenBlock.reSinkDate();
   }
 
   //sets the date to the current date, if the user is adding items in the current month.
@@ -92,29 +109,49 @@ class _AddItemScreenState extends State<AddItemScreen> {
         )));
   }
 
-  saveItem() {
-    final bloc = BlocProvider.of<AppBloc>(context).itemBloc;
+  void saveItem() {
     if (widget.item == null) {
-      bloc.saveItem(nameController.text, widget.category.id,
-          widget.category.type, double.parse(valueController.text), _date);
+      _itemBloc.saveItem(nameController.text, _currentCategory.id,
+          _currentCategory.type, double.parse(valueController.text), _date);
     } else {
-      bloc.saveItem(
+      _itemBloc.saveItem(
           nameController.text,
-          widget.category.id,
-          widget.category.type,
+          _currentCategory.id,
+          _currentCategory.type,
           double.parse(valueController.text),
           _date,
           widget.item.id);
     }
-
+    _categoryScreenBlock.setDate(_date);
     Navigator.of(context).pop();
+  }
+
+  void deleteItem() {
+    _itemBloc.deleteItem(widget.item.id);
+    _categoryScreenBlock.reSinkDate();
+    Navigator.of(context).pop();
+  }
+
+  void categoryPickerCallback(Category newCategory) {
+    setState(() => _currentCategory = newCategory);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(title: Text('Add a new Item')),
+        appBar: AppBar(
+          title: Text(_headline),
+          actions: <Widget>[
+            widget.item != null
+                ? IconButton(
+                    onPressed: () => deleteItem(),
+                    icon: Icon(Icons.delete),
+                    tooltip: "Delete this item",
+                  )
+                : Container()
+          ],
+        ),
         body: _date == null
             ? Center(child: CircularProgressIndicator())
             : Container(
@@ -157,13 +194,18 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                   child: Text('Pick a date'))
                             ],
                           ))),
+                      CategoryPicker(
+                        widget.presetCategory,
+                        categoryPickerCallback,
+                        widget.item,
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Builder(builder: (BuildContext context) {
                           return RaisedButton(
                             onPressed: () => checkInput(context),
                             color: Colors.indigoAccent,
-                            child: Text('Add Item'),
+                            child: Text(_buttonText),
                           );
                         }),
                       )
